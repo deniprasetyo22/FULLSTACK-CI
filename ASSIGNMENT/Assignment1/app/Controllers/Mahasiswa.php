@@ -22,7 +22,13 @@ class Mahasiswa extends BaseController
 
     public function detail($nim)
     {
-        $data['student'] = $this->mahasiswaModel->getStudentByNIM($nim);
+        $student = $this->mahasiswaModel->getStudentByNIM($nim);
+
+        if (!$student) {
+            return redirect()->to('/mahasiswa')->with('error', 'Mahasiswa tidak ditemukan.');
+        }
+        
+        $data['student'] = $student;
         return view('mahasiswa/detail', $data);
     }
 
@@ -41,6 +47,8 @@ class Mahasiswa extends BaseController
         $this->mahasiswaModel->addStudent($mahasiswa);
 
         return redirect()->to('/mahasiswa')->with('success', 'Mahasiswa berhasil ditambahkan.');
+        // $data['students'] = $this->mahasiswaModel->getAllStudents();
+        // return view('mahasiswa/index', $data);
     }
 
     public function update($nim)
@@ -65,12 +73,20 @@ class Mahasiswa extends BaseController
         $this->mahasiswaModel->updateStudent($mahasiswa);
 
         return redirect()->to('/mahasiswa')->with('success', 'Mahasiswa berhasil diperbarui.');
+
+        // $data['students'] = $this->mahasiswaModel->getAllStudents();
+        // return view('mahasiswa/index', $data);
     }
 
     public function delete($nim)
     {
-        $this->mahasiswaModel->deleteStudent($nim);
-        return redirect()->to('/mahasiswa')->with('success', 'Mahasiswa berhasil dihapus.');
+        if ($this->mahasiswaModel->deleteStudent($nim)) {
+            return redirect()->to('/mahasiswa')->with('success', 'Mahasiswa berhasil dihapus.');
+        }
+        return redirect()->to('/mahasiswa')->with('error', 'Mahasiswa tidak ditemukan.');
+
+        // $data['students'] = $this->mahasiswaModel->getAllStudents();
+        // return view('mahasiswa/index', $data);
     }
 }
 

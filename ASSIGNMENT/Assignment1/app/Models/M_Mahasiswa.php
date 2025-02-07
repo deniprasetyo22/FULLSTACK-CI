@@ -8,7 +8,11 @@ class M_Mahasiswa{
 
     public function __construct()
     {
-        $this->students[] = new Mahasiswa('101', 'John Doe', 'Computer Science');
+        $this->students = [
+            new Mahasiswa('101', 'John Doe', 'Computer Science'),
+            new Mahasiswa('102', 'Jane Smith', 'Information Systems'),
+            new Mahasiswa('103', 'Michael Johnson', 'Software Engineering')
+        ];
     }
 
     public function getAllStudents()
@@ -47,6 +51,7 @@ class M_Mahasiswa{
         foreach($this->students as $key => $student){
             if($student->getNIM() == $nim){
                 unset($this->students[$key]);
+                $this->students = array_values($this->students); // Reset array keys
                 return true;
             }
         }
