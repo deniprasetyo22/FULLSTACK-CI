@@ -2,15 +2,25 @@
 namespace App\Entities;
 
 class Mahasiswa{
-    private $nim;
-    private $nama;
-    private $jurusan;
+    // private $nim;
+    // private $nama;
+    // private $jurusan;
 
-    public function __construct($nim, $nama, $jurusan)
+    // public function __construct($nim, $nama, $jurusan)
+    // {
+    //     $this->setNIM($nim);
+    //     $this->setNama($nama);
+    //     $this->setJurusan($jurusan);
+    // }
+    public $nim;
+    public $nama;
+    public $jurusan;
+
+    public function __construct(array $data)
     {
-        $this->setNIM($nim);
-        $this->setNama($nama);
-        $this->setJurusan($jurusan);
+        $this->nim = $data['nim'] ?? '';
+        $this->nama = $data['nama'] ?? '';
+        $this->jurusan = $data['jurusan'] ?? '';
     }
 
     public function getNIM()

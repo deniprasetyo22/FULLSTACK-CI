@@ -4,7 +4,7 @@
 
 <?= $this->section('content') ?>
 <div class="max-w-3xl mx-auto bg-white p-6 rounded-lg shadow-md">
-    <a href="/mahasiswa"
+    <a href="/"
         class="bg-blue-500 text-white py-1 px-3 rounded-md inline-flex items-center hover:bg-blue-600 transition">
         <i class="fa-solid fa-arrow-left mr-2"></i> Back
     </a>
@@ -12,8 +12,11 @@
     <h2 class="text-2xl font-bold mb-4 text-center">Edit Mahasiswa</h2>
 
     <!-- Form Edit Mahasiswa -->
-    <form method="post" action="/mahasiswa/saveUpdate" class="space-y-4">
-        <input type="hidden" name="nim" value="<?= $student->getNIM(); ?>">
+    <form method="post" action="/mahasiswa/saveUpdate/<?= $student->getNIM(); ?>" class="space-y-4">
+        <!-- Method PUT -->
+        <?= csrf_field(); ?>
+        <input type="hidden" name="_method" value="PUT">
+
         <div>
             <label class="block font-semibold">NIM</label>
             <input type="text" name="nim" value="<?= $student->getNIM(); ?>" readonly

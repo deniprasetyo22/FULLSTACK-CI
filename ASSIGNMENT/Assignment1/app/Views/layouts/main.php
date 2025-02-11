@@ -20,7 +20,11 @@
         <!-- Navbar -->
         <nav class="bg-blue-500 p-4 text-white">
             <div class="container mx-auto">
-                <h1 class="text-lg font-bold"><i class="fa-brands fa-free-code-camp"></i> Student Management System</h1>
+                <a href="/">
+                    <h1 class="text-lg font-bold">
+                        <i class="fa-brands fa-free-code-camp"></i> Student Management System
+                    </h1>
+                </a>
             </div>
         </nav>
 

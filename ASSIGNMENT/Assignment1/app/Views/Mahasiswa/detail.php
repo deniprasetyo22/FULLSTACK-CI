@@ -4,7 +4,7 @@
 
 <?= $this->section('content') ?>
 <div class="max-w-3xl mx-auto bg-white p-6 rounded-lg shadow-md">
-    <a href="/mahasiswa" class="bg-blue-500 text-white py-1 px-2 rounded-sm">
+    <a href="/" class="bg-blue-500 text-white py-1 px-2 rounded-sm">
         <i class="fa-solid fa-arrow-left"></i>
         Back
     </a>

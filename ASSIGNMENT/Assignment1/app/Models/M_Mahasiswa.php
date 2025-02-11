@@ -9,9 +9,9 @@ class M_Mahasiswa{
     public function __construct()
     {
         $this->students = [
-            new Mahasiswa('101', 'John Doe', 'Computer Science'),
-            new Mahasiswa('102', 'Jane Smith', 'Information Systems'),
-            new Mahasiswa('103', 'Michael Johnson', 'Software Engineering')
+            new Mahasiswa(['nim' => '101', 'nama' => 'John Doe', 'jurusan' => 'Computer Science']),
+            new Mahasiswa(['nim' => '102', 'nama' => 'Jane Smith', 'jurusan' => 'Information Systems']),
+            new Mahasiswa(['nim' => '103', 'nama' => 'Michael Johnson', 'jurusan' => 'Software Engineering']),
         ];
     }
 
