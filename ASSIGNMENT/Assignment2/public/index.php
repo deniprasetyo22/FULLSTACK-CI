@@ -1,4 +1,5 @@
 <?php
+// define('CI_DEBUG', FALSE); // bypass (bool) app/Config/Boot/development.php
 
 /*
  *---------------------------------------------------------------

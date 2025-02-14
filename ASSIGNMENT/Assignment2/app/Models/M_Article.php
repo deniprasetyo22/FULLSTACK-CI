@@ -5,58 +5,63 @@ namespace App\Models;
 use App\Entities\Article;
 use CodeIgniter\Model;
 
-class M_Article
+class M_Article extends Model
 {
-   private $articles = [];
+    private $articles = [];
 
-   public function __construct()
-   {
-    $this->articles = [
-        new Article(["id" => 1, "title" => "Hello World", "content" => "Content of Hello World"]),
-        new Article(["id" => 2, "title" => "Hello PHP", "content" => "Content of Hello PHP"]),
-        new Article(["id" => 3, "title" => "Hello JavaScript", "content" => "Content of Hello JavaScript"]),
-    ];
-   }
-
-   public function getAllArticles()
-   {
-       return $this->articles;
-   }
-
-   public function getArticleById($id)
-   {
-    foreach ($this->articles as $article) {
-        if ($article->getId() == $id) {
-            return $article;
-        }
+    public function __construct()
+    {
+        $this->articles = [
+            new Article(['id'=>1, 'title'=>'Article 1', 'content'=>'Content 1']),
+            new Article(['id'=>2, 'title'=>'Article 2', 'content'=>'Content 2']),
+            new Article(['id'=>3, 'title'=>'Article 3', 'content'=>'Content 3']),
+        ];
     }
-    return null;
-   }
 
-   public function addArticle(Article $article)
-   {
-    $this->articles[] = $article;
-   }
-
-   public function updateArticle(Article $article)
-   {
-    foreach ($this->articles as $key => $a) {
-        if ($a->getId() == $article->getId()) {
-            $this->articles[$key] = $article;
-            return true;
-        }
+    public function getAllArticles()
+    {
+        return $this->articles;
     }
-    return false;
-   }
 
-   public function deleteArticle($id)
-   {
-    foreach ($this->articles as $key => $a) {
-        if ($a->getId() == $id) {
-            unset($this->articles[$key]);
-            return true;
+    public function getArticleBySlug($slug)
+    {
+        foreach ($this->articles as $article) {
+            if ($article->getSlug() == $slug) {
+                return $article;
+            }
         }
+
+        return null;
     }
-    return false;
-   }
+
+
+    public function createArticle(Article $article)
+    {
+        $this->articles[] = $article;
+    }
+
+    public function updateArticle($slug, array $data)
+    {
+        foreach ($this->articles as &$article) {
+            if ($article->getSlug() == $slug) {
+                $article->setId($data['id'] ?? $article->getId());
+                $article->setTitle($data['title'] ?? $article->getTitle());
+                $article->setContent($data['content'] ?? $article->getContent());
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public function deleteArticle($slug)
+    {
+        foreach ($this->articles as $key => $article) {
+            if ($article->getSlug() == $slug) {
+                unset($this->articles[$key]);
+                $this->articles = array_values($this->articles);
+                return true;
+            }
+        }
+        return false;
+    }
 }
