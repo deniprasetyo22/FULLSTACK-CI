@@ -6,16 +6,22 @@ use App\Models\M_Article;
 class Article extends BaseController
 {
     private $articleModel;
+    protected $renderer; //template engine renderer
 
     public function __construct()
     {
         $this->articleModel = new M_Article();
+        $this->renderer = service('renderer'); //template engine renderer
     }
 
     public function index()
     {
-        $data['articles'] = $this->articleModel->getAllArticles();
-        return view('articles/index', $data);
+        $data = [
+            'pageTitle' => 'Article List',
+            'articles' => $this->articleModel->getAllArticles()
+        ];
+        // return view('pages/articles/index', $data, ['cache' => 60, 'cache_name' => 'articles_index']);
+        return view('pages/articles/index', $data);
     }
 
     public function show($slug)
@@ -26,13 +32,13 @@ class Article extends BaseController
             throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound();
         }
 
-        return view('articles/show', ['article' => $article]);
+        return view('pages/articles/show', ['article' => $article]);
     }
 
 
     public function create()
     {
-        return view('articles/create');
+        return view('pages/articles/create');
     }
 
     public function store()
@@ -59,7 +65,7 @@ class Article extends BaseController
         }
 
         // return redirect()->to('/articles')->with('message', 'Article created successfully.');
-        return view('articles/index', $data);
+        return view('pages/articles/index', $data);
     }
 
     public function edit($slug)
@@ -70,7 +76,7 @@ class Article extends BaseController
             throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound();
         }
 
-        return view('articles/edit', ['article' => $article]);
+        return view('pages/articles/edit', ['article' => $article]);
     }
 
     public function update($slug)
@@ -102,7 +108,7 @@ class Article extends BaseController
         }
 
         // return redirect()->to('/articles')->with('message', 'Article updated successfully.');
-        return view('articles/index', $data);
+        return view('pages/articles/index', $data);
     }
 
     public function delete($slug)
@@ -115,11 +121,63 @@ class Article extends BaseController
 
         if ($this->articleModel->deleteArticle($slug)) {
             $data['articles'] = $this->articleModel->getAllArticles();
-            return view('articles/index', $data);
+            return view('pages/articles/index', $data);
             // return redirect()->to('/articles')->with('message', 'Article deleted successfully.');
         }
 
-        return redirect()->to('/articles')->with('error', 'Failed to delete article.');
-
+        return redirect()->to('pages/articles')->with('error', 'Failed to delete article.');
     }
+
+    public function table()
+    {
+        // $table = new \CodeIgniter\View\Table();
+        
+        // // Data yang akan ditampilkan
+        // $data = [
+        //     ['Nama' => 'John Doe', 'Usia' => 25, 'Pekerjaan' => 'Programmer'],
+        //     ['Nama' => 'Jane Smith', 'Usia' => 28, 'Pekerjaan' => 'Designer'],
+        //     ['Nama' => 'Mike Johnson', 'Usia' => 32, 'Pekerjaan' => 'Manager']
+        // ];
+
+        // // Generate tabel dengan data
+        // $data['table'] = $table->generate($data);
+
+        // // Kirim table ke view
+        // return view('articles/table', $data);
+
+
+        /* Menggunakan Renderer Template Engine */
+        // // Contoh penggunaan setVar
+        // $this->renderer->setVar('title', 'About Us');
+        // $this->renderer->setVar('content', 'Ini adalah halaman about us');
+
+        // Contoh penggunaan dengan multiple data setData
+        $this->renderer->setData([
+            'products' => [
+                ['name' => 'Produk A', 'price' => 100000],
+                ['name' => 'Produk B', 'price' => 200000]
+            ],
+            'category' => 'Electronics'
+        ]);
+
+        
+        // Merender view dengan data
+        return $this->renderer->render('pages/articles/table', ['cache'=>60]);
+    }
+
+    /* Method renderString */
+    public function dynamic()
+    {
+        $template = '
+            <div class="user-card">
+                <h2>John Doe</h2>
+                <p>Email: john@example.com</p>
+                <p>Role: administrator</p>
+            </div>
+        ';
+
+        return $this->renderer->renderString($template);
+    }
+
+
 }
