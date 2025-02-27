@@ -256,15 +256,7 @@ class Student extends BaseController
 
     public function storeStudent()
     {
-        $data = [
-            'student_id'       => $this->request->getPost('student_id'),
-            'name'             => $this->request->getPost('name'),
-            'study_program'    => $this->request->getPost('study_program'),
-            'current_semester' => $this->request->getPost('current_semester'),
-            'academic_status'  => $this->request->getPost('academic_status'),
-            'entry_year'       => $this->request->getPost('entry_year'),
-            'gpa'              => $this->request->getPost('gpa'),
-        ];
+        $student = new \App\Entities\Student($this->request->getPost());
 
         $rules = $this->studentModel->getValidationRules();
         $messages = $this->studentModel->getValidationMessages();
@@ -275,7 +267,6 @@ class Student extends BaseController
             return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
         }
 
-        $student = new \App\Entities\Student($data);
         $this->studentModel->save($student);
 
         return redirect()->to('student-list')->with('message', 'Student added successfully.');
@@ -315,22 +306,7 @@ class Student extends BaseController
 
     public function updateStudent($id)
     {
-        $student = $this->studentModel->find($id);
-    
-        if (!$student) {
-            return redirect()->to('student-list')->with('message', 'Student not found');
-        }
-    
-        $data = [
-            'id'               => $id,
-            'student_id'       => $this->request->getPost('student_id'),
-            'name'             => $this->request->getPost('name'),
-            'study_program'    => $this->request->getPost('study_program'),
-            'current_semester' => $this->request->getPost('current_semester'),
-            'academic_status'  => $this->request->getPost('academic_status'),
-            'entry_year'       => $this->request->getPost('entry_year'),
-            'gpa'              => $this->request->getPost('gpa'),
-        ];
+        $student = new \App\Entities\Student($this->request->getPost());
     
         $rules = $this->studentModel->getValidationRules();
         $messages = $this->studentModel->getValidationMessages();
@@ -341,7 +317,7 @@ class Student extends BaseController
             return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
         }
     
-        $this->studentModel->update($id, $data);
+        $this->studentModel->update($id, $student);
     
         return redirect()->to('student-list')->with('message', 'Student updated successfully.');
     }

@@ -1,4 +1,4 @@
-<h2 class="text-2xl font-semibold text-center mb-2">{page_title}</h2>
+<h2 class="text-2xl font-semibold text-center my-4">{page_title}</h2>
 
 <div class="overflow-x-auto mb-4">
     <table class="w-full border-collapse border border-gray-300">
@@ -17,8 +17,8 @@
         <tbody>
             {students}
             <tr class="hover:bg-gray-100">
-                <td class="border border-gray-300 px-4 py-2">{id}</td>
-                <td class="border border-gray-300 px-4 py-2">{studentId}</td>
+                <td class="border border-gray-300 px-4 py-2 text-center">{id}</td>
+                <td class="border border-gray-300 px-4 py-2 text-center">{studentId}</td>
                 <td class="border border-gray-300 px-4 py-2">{studentName}</td>
                 <td class="border border-gray-300 px-4 py-2">{studyProgram}</td>
                 <td class="border border-gray-300 px-4 py-2 text-center">{currentSemester}</td>

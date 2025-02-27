@@ -64,12 +64,7 @@ class Course extends BaseController
 
     public function storeCourse()
     {
-        $data = [
-            'code' => $this->request->getPost('code'),
-            'name' => $this->request->getPost('name'),
-            'credits' => $this->request->getPost('credits'),
-            'semester' => $this->request->getPost('semester'),
-        ];
+        $course = new \App\Entities\Course($this->request->getPost());
 
         $rules = $this->courseModel->getValidationRules();
         $messages = $this->courseModel->getValidationMessages();
@@ -80,7 +75,6 @@ class Course extends BaseController
             return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
         }
 
-        $course = new \App\Entities\Course($data);
         $this->courseModel->save($course);
 
         return redirect()->to('course-list')->with('message', 'Course created successfully');
@@ -120,12 +114,7 @@ class Course extends BaseController
 
     public function updateCourse($id)
     {
-        $data = [
-            'code' => $this->request->getPost('code'),
-            'name' => $this->request->getPost('name'),
-            'credits' => $this->request->getPost('credits'),
-            'semester' => $this->request->getPost('semester'),
-        ];
+        $course = new \App\Entities\Course($this->request->getPost());
 
         $rules = $this->courseModel->getValidationRules();
         $messages = $this->courseModel->getValidationMessages();
@@ -136,7 +125,7 @@ class Course extends BaseController
             return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
         }
 
-        $this->courseModel->update($id, $data);
+        $this->courseModel->update($id, $course);
 
         return redirect()->to('course-list')->with('message', 'Course updated successfully');
     }
