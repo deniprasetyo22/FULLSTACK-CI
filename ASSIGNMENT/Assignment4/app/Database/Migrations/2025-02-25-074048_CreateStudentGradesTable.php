@@ -21,8 +21,8 @@ class CreateStudentGradesTable extends Migration
                 'unsigned'=> true,
             ],
             'grade_value' => [
-                'type' => 'INT',
-                'constraint' => 11,
+                'type' => 'DECIMAL',
+                'constraint' => '5,2',
                 'unsigned' => true
             ],
             'grade_letter' => [

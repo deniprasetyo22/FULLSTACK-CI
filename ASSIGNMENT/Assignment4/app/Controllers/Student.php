@@ -7,67 +7,47 @@ use App\Models\StudentModel;
 class Student extends BaseController
 {
     protected $studentModel;
+    protected $session;
 
     public function __construct()
     {
         $this->studentModel = new StudentModel();
+        $this->session = \Config\Services::session();
     }
 
+    /* Public */
     public function index()
     {
-        // $parser = \config\Services::parser();
+        $parser = \config\Services::parser();
 
-        // $data = [
-        //     'page_title' => 'Student List',
-        //     'students' => [
-        //         [
-        //             'studentId' => 1,
-        //             'studentName' => 'Deni Prasetyo',
-        //             'programStudy' => 'Computer Science',
-        //             'currentSemester' => 4,
-        //             'gpa' => 3.5,
-        //             'slug' => 'deni-prasetyo'
-        //         ],
-        //         [
-        //             'studentId' => 2,
-        //             'studentName' => 'John Doe',
-        //             'programStudy' => 'Information Technology',
-        //             'currentSemester' => 3,
-        //             'gpa' => 3.8,
-        //             'slug' => 'john-doe'
-        //         ],
-        //         [
-        //             'studentId' => 3,
-        //             'studentName' => 'Bob Smith',
-        //             'programStudy' => 'Business Administration',
-        //             'currentSemester' => 2,
-        //             'gpa' => 3.2,
-        //             'slug' => 'bob-smith'
-        //         ],
-        //         [
-        //             'studentId' => 4,
-        //             'studentName' => 'Alice Johnson',
-        //             'programStudy' => 'Marketing',
-        //             'currentSemester' => 1,
-        //             'gpa' => 3.9,
-        //             'slug' => 'alice-johnson'
-        //         ],
-        //         [
-        //             'studentId' => 5,
-        //             'studentName' => 'Charlie Brown',
-        //             'programStudy' => 'Psychology',
-        //             'currentSemester' => 4,
-        //             'gpa' => 3.7,
-        //             'slug' => 'charlie-brown'
-        //         ]
-        //     ]
-        // ];
+        $studentModel = new StudentModel();
+        $students = $studentModel->asArray()->findAll();
 
-        // $data['content'] = $parser->setData($data)->render('components/studentList', ['cache'=>1800, 'cache_name'=>'studentList']);
+        $formattedStudents = array_map(function($student) {
+            return [
+                'id'              => $student['id'],
+                'studentId'       => $student['student_id'],
+                'studentName'     => $student['name'],
+                'studyProgram'    => $student['study_program'],
+                'currentSemester' => $student['current_semester'],
+                'academicStatus'  => $student['academic_status'],
+                'entryYear'       => $student['entry_year'],
+                'gpa'             => $student['gpa'],
+                'createdAt'       => $student['created_at'],
+                'updatedAt'       => $student['updated_at'],
+                'slug'            => strtolower(str_replace(' ', '-', $student['name'])),
+            ];
+        }, $students);
+        
+    
+        $data = [
+            'page_title' => 'Student List',
+            'students'   => $formattedStudents,
+            'base_url'   => base_url()
+        ];
 
-        // return view('pages/students/v_index', $data);
+        $data['content'] = $parser->setData($data)->render('components/studentList');
 
-        $data['students'] = $this->studentModel->findAll();
         return view('pages/students/v_index', $data);
     }
 
@@ -216,27 +196,154 @@ class Student extends BaseController
     }
 
 
-    // public function create()
-    // {
-    //     $student = new \App\Entities\Student([
-    //         'id' => 1,
-    //         'student_id' => '101',
-    //         'name' => 'Deni Prasetyo',
-    //         'study_program' => 'Informatics Engineering',
-    //         'current_semester' => 6,
-    //         'academic_status' => 'Active',
-    //         'entry_year' => 2022,
-    //         'gpa' => 3.69,
-    //         'created_at' => date('Y-m-d H:i:s'),
-    //         'updated_at'=> date('Y-m-d H:i:s')
-    //     ]);
-    //     $this->studentModel->save($student);
-    // }
-
-    public function read()
+    /* Admin */
+    public function studentList()
     {
-        $students = $this->studentModel->findAll();
-        dd($students);
+        $studentModel = new StudentModel();
+        $students = $studentModel->findAll();
+    
+        $data = [
+            'page_title' => 'Student List',
+            'students'   => $students,
+            'hideHeader' => true
+        ];
+        
+        return view('pages/admin/student/v_studentList', $data);
+    }
+
+    public function studentProfile($slug)
+    {
+        $parser = \config\Services::parser();
+        
+        $students = $this->studentModel->asArray()->findAll();
+
+        $student = null;
+        foreach ($students as $s) {
+            if (strtolower(str_replace(' ', '-', $s['name'])) === $slug) {
+                $student = $s;
+                break;
+            }
+        }
+
+        if (!$student) {
+            throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound("Student with slug '$slug' not found.");
+        }
+
+        $student['academic_status'] = view_cell('AcademicStatusCell', ['academicStatus' => $student['academic_status']]);
+
+        $data = [
+            'page_title' => 'Student Profile',
+            'student'    => $student,
+            'hideHeader' => true
+        ];
+
+        $data['content'] = $parser->setData($student)->render('components/studentProfile');
+        
+        return view('pages/admin/student/v_studentProfile', $data);
+    }
+
+    public function createStudent()
+    {
+        $data = [
+            'page_title' => 'Create Student',
+            'hideHeader' => true,
+            'academic_status' => [
+                'Active', 'On Leave', 'Graduated'
+            ]
+        ];
+        return view('pages/admin/student/v_createStudent', $data);
+    }
+
+    public function storeStudent()
+    {
+        $data = [
+            'student_id'       => $this->request->getPost('student_id'),
+            'name'             => $this->request->getPost('name'),
+            'study_program'    => $this->request->getPost('study_program'),
+            'current_semester' => $this->request->getPost('current_semester'),
+            'academic_status'  => $this->request->getPost('academic_status'),
+            'entry_year'       => $this->request->getPost('entry_year'),
+            'gpa'              => $this->request->getPost('gpa'),
+        ];
+
+        $rules = $this->studentModel->getValidationRules();
+        $messages = $this->studentModel->getValidationMessages();
+
+        $rules['student_id'] = "required|is_unique[students.student_id]";
+    
+        if (!$this->validate($rules, $messages)) {
+            return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
+        }
+
+        $student = new \App\Entities\Student($data);
+        $this->studentModel->save($student);
+
+        return redirect()->to('student-list')->with('message', 'Student added successfully.');
+    }
+
+    public function deleteStudent($id)
+    {
+        $studentModel = new StudentModel();
+        
+        $student = $studentModel->find($id);
+        if (!$student) {
+            return redirect()->to('student-list')->with('message', 'Student not found');
+        }
+
+        $studentModel->delete($id);
+
+        return redirect()->to('student-list')->with('message', 'Student deleted successfully');
+    }
+
+    public function editStudent($id)
+    {
+        $student = $this->studentModel->find($id);
+
+        if (!$student) {
+            return redirect()->to('student-list')->with('message', 'Student not found');
+        }
+
+        $data = [
+            'page_title' => 'Edit Student',
+            'student'    => $student->toArray(),
+            'hideHeader' => true,
+            'academic_status' => ['Active', 'On Leave', 'Graduated']
+        ];
+
+        return view('pages/admin/student/v_editStudent', $data);
+    }
+
+    public function updateStudent($id)
+    {
+        $student = $this->studentModel->find($id);
+    
+        if (!$student) {
+            return redirect()->to('student-list')->with('message', 'Student not found');
+        }
+    
+        $data = [
+            'id'               => $id,
+            'student_id'       => $this->request->getPost('student_id'),
+            'name'             => $this->request->getPost('name'),
+            'study_program'    => $this->request->getPost('study_program'),
+            'current_semester' => $this->request->getPost('current_semester'),
+            'academic_status'  => $this->request->getPost('academic_status'),
+            'entry_year'       => $this->request->getPost('entry_year'),
+            'gpa'              => $this->request->getPost('gpa'),
+        ];
+    
+        $rules = $this->studentModel->getValidationRules();
+        $messages = $this->studentModel->getValidationMessages();
+    
+        $rules['student_id'] = "required|is_unique[students.student_id,id,{$id}]";
+    
+        if (!$this->validate($rules, $messages)) {
+            return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
+        }
+    
+        $this->studentModel->update($id, $data);
+    
+        return redirect()->to('student-list')->with('message', 'Student updated successfully.');
     }
 }
 

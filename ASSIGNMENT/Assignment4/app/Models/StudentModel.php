@@ -16,25 +16,43 @@ class StudentModel extends Model
     protected $createdField     = 'created_at';
     protected $updatedField     = 'updated_at';
     protected $validationRules = [
-        'student_id' => 'required|is_unique[students.student_id]',
+        'student_id' => 'required',
         'name' => 'required',
         'study_program' => 'required',
-        'current_semester' => 'required',        
-        'academic_status' => 'required',
+        'current_semester' => 'required|greater_than_equal_to[1]|less_than_equal_to[8]',        
+        'academic_status' => 'required|in_list[Active,On Leave,Graduated]',
         'entry_year' => 'required',
-        'gpa' => 'required',
+        'gpa' => 'required|decimal|greater_than_equal_to[0]|less_than_equal_to[4.00]',
     ];
     protected $validationMessages = [
         'student_id'=> [
             'required'=> 'Student ID is required',
             'is_unique'=> 'Student ID must be unique',
         ],
-        'name' => 'Name is required',
-        'study_program'=> 'Study Program is required',
-        'current_semester'=> 'Current Semester is required',
-        'academic_status'=> 'Academic Status is required',
-        'entry_year'=> 'Entry Year is required',
-        'gpa'=> 'GPA is required',
+        'name' => [
+            'required' => 'Name is required'
+        ],
+        'study_program'=> [
+            'required' => 'Study Program is required'
+        ],
+        'current_semester'=> [
+            'required'=> 'Current Semester is required',
+            'greater_than_equal_to'=> 'Current Semester must be greater than or equal to 1',
+            'less_than_equal_to'=> 'Current Semester must be less than or equal to 8',
+        ],
+        'academic_status'=> [
+            'required'=> 'Academic Status is required',
+            'in_list'=> 'Academic Status must be one of [Active,On Leave,Graduated]'
+        ],
+        'entry_year'=> [
+            'required' => 'Entry Year is required'
+        ],
+        'gpa'=> [
+            'required'=> 'GPA is required',
+            'decimal'=> 'GPA must be decimal',
+            'greater_than_equal_to'=> 'GPA must be greater than or equal to 0',
+            'less_than_equal_to'=> 'GPA must be less than or equal to 4.00',
+        ],
     ];
 
 }

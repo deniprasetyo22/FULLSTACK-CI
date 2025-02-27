@@ -10,6 +10,9 @@
 
         <!-- Tailwind CSS -->
         <script src="https://cdn.tailwindcss.com"></script>
+
+        <!-- FontAwesome -->
+        <script src="https://kit.fontawesome.com/c4fc535117.js" crossorigin="anonymous"></script>
     </head>
 
     <body class="flex flex-col min-h-screen h-screen">
