@@ -8,8 +8,10 @@ class DataParams
     public $entry_year = '';
     public $sort = 'id';
     public $order = 'asc';
-    public $page_students = 1;
+    public $page = 1;
     public $perPage = 10;
+    public $credits = '';
+    public $semester = '';
 
     public function __construct(array $params = [])
     {
@@ -19,8 +21,10 @@ class DataParams
         $this->entry_year = $params['entry_year'] ?? '';
         $this->sort = $params['sort'] ?? 'id';
         $this->order = $params['order'] ?? 'asc';
-        $this->page_students = (int) ($params['page_students'] ?? 1);
+        $this->page = (int) ($params['page'] ?? 1);
         $this->perPage = (int) ($params['perPage'] ?? 5);
+        $this->credits = $params['credits'] ?? '';
+        $this->semester = $params['semester'] ?? '';
     }
 
     public function getParams()
@@ -32,8 +36,10 @@ class DataParams
         'entry_year'=> $this->entry_year,
         'sort' => $this->sort,
         'order' => $this->order,
-        'page_students' => $this->page_students,
-        'perPage' => $this->perPage
+        'page' => $this->page,
+        'perPage' => $this->perPage,
+        'credits' => $this->credits,
+        'semester' => $this->semester
     ];
     }
 

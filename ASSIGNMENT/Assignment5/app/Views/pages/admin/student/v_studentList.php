@@ -193,7 +193,7 @@
     </div>
     <div class="text-center mt-2">
         <small>Menampilkan <?= count($students) ?> dari <?= $total ?>
-            total data (Halaman <?= $params->page_students ?>)</small>
+            total data (Halaman <?= $params->page ?>)</small>
     </div>
 </div>
 <?= $this->endSection() ?>

@@ -58,7 +58,8 @@ class StudentModel extends Model
 
     public function getFilteredUsers(DataParams $params)
     {
-        if (!empty($params->search)) {// Apply search
+        // Apply search
+        if (!empty($params->search)) {
             $this->groupStart()
                 ->where('CAST(id AS TEXT) LIKE', "%$params->search%")
                 ->orWhere('CAST(student_id AS TEXT) LIKE', "%$params->search%")
@@ -83,18 +84,18 @@ class StudentModel extends Model
         }
 
          // Apply sort
-         $allowedSortColumns = ['id', 'student_id', 'name', 'study_program', 'current_semester', 'academic_status', 'entry_year', 'gpa'];
-         $sort = in_array($params->sort, $allowedSortColumns) ? $params->sort : 'id';
-         $order = ($params->order === 'desc') ? 'desc' : 'asc';
-         
-         $this->orderBy($sort, $order);
-         
-         $result = [
-            'students' => $this->paginate($params->perPage, 'students', $params->page_students),
+        $allowedSortColumns = ['id', 'student_id', 'name', 'study_program', 'current_semester', 'academic_status', 'entry_year', 'gpa'];
+        $sort = in_array($params->sort, $allowedSortColumns) ? $params->sort : 'id';
+        $order = ($params->order === 'desc') ? 'desc' : 'asc';
+        
+        $this->orderBy($sort, $order);
+        
+        $result = [
+            'students' => $this->paginate($params->perPage, 'students', $params->page),
             'pager' => $this->pager,
             'total' => $this->countAllResults(false)
-         ];
-         return $result;
+        ];
+        return $result;
     }
 
     public function getAllStudyProgram()

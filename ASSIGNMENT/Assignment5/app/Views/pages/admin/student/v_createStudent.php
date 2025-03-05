@@ -26,7 +26,7 @@
                 class="w-full p-2 border <?= session('errors.student_id') ? 'border-red-500' : 'border-gray-300' ?> rounded"
                 value="<?= old('student_id') ?>">
             <?php if (isset(session('errors')['student_id'])) : ?>
-            <div>
+            <div class="text-red-500 text-sm">
                 <?= session('errors')['student_id'] ?>
             </div>
             <?php endif ?>
@@ -40,7 +40,7 @@
                 class="w-full p-2 border <?= session('errors.name') ? 'border-red-500' : 'border-gray-300' ?> rounded"
                 value="<?= old('name') ?>">
             <?php if (session('errors.name')) : ?>
-            <div>
+            <div class="text-red-500 text-sm">
                 <?= session('errors.name') ?>
             </div>
             <?php endif; ?>
@@ -54,7 +54,7 @@
                 class="w-full p-2 border <?= session('errors.study_program') ? 'border-red-500' : 'border-gray-300' ?> rounded"
                 value="<?= old('study_program') ?>">
             <?php if (session('errors.study_program')) : ?>
-            <div>
+            <div class="text-red-500 text-sm">
                 <?= session('errors.study_program') ?>
             </div>
             <?php endif; ?>
@@ -70,7 +70,7 @@
                 class="w-full p-2 border <?= session('errors.current_semester') ? 'border-red-500' : 'border-gray-300' ?> rounded"
                 value="<?= old('current_semester') ?>">
             <?php if (session('errors.current_semester')) : ?>
-            <div>
+            <div class="text-red-500 text-sm">
                 <?= session('errors.current_semester') ?>
             </div>
             <?php endif; ?>
@@ -90,7 +90,7 @@
                 <?php endforeach; ?>
             </select>
             <?php if (session('errors.academic_status')) : ?>
-            <div>
+            <div class="text-red-500 text-sm">
                 <?= session('errors.academic_status') ?>
             </div>
             <?php endif; ?>
@@ -104,7 +104,7 @@
                 class="w-full p-2 border <?= session('errors.entry_year') ? 'border-red-500' : 'border-gray-300' ?> rounded"
                 value="<?= old('entry_year') ?>">
             <?php if (session('errors.entry_year')) : ?>
-            <div>
+            <div class="text-red-500 text-sm">
                 <?= session('errors.entry_year') ?>
             </div>
             <?php endif; ?>
@@ -120,7 +120,7 @@
                 class="w-full p-2 border <?= session('errors.gpa') ? 'border-red-500' : 'border-gray-300' ?> rounded"
                 value="<?= old('gpa') ?>">
             <?php if (session('errors.gpa')) : ?>
-            <div>
+            <div class="text-red-500 text-sm">
                 <?= session('errors.gpa') ?>
             </div>
             <?php endif; ?>

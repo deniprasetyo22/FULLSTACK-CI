@@ -23,19 +23,78 @@
     <?php endif; ?>
 
     <div>
-        <a href="<?= url_to('create-course') ?>" class="bg-blue-500 hover:bg-blue-600 rounded text-white py-1 px-3">
+        <a href="<?= url_to('create-course') ?>" class="bg-blue-500 hover:bg-blue-600 rounded text-white py-1.5 px-3">
             <i class="fa-solid fa-plus"></i>
             <span>Add</span>
         </a>
     </div>
+
+    <form action="<?= $baseUrl ?>" method="get" class="space-y-4">
+        <div class="flex flex-wrap gap-4">
+            <div class="w-full md:w-4/12">
+                <div class="flex rounded-md shadow-sm">
+                    <input type="text" name="search" value="<?= $params->search ?>"
+                        class="flex-1 p-2 border border-gray-300 rounded-l-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        placeholder="Cari ID, Course Code, Course Name, Credits or Semester...">
+                    <button type="submit"
+                        class="px-4 py-2 bg-blue-600 text-white rounded-r-md hover:bg-blue-700">Cari</button>
+                </div>
+            </div>
+            <div class="w-full md:w-2/12">
+                <select name="credits"
+                    class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+                    onchange="this.form.submit()">
+                    <option value="">All Credits</option>
+                    <?php foreach ($credits as $c): ?><option value="<?= $c ?>"
+                        <?= ($params->credits == $c) ? 'selected' : '' ?>><?= ucfirst($c) ?></option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+            <div class="w-full md:w-2/12">
+                <select name="semester"
+                    class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+                    onchange="this.form.submit()">
+                    <option value="">All Semester</option>
+                    <?php foreach ($semesters as $s): ?><option value="<?= $s ?>"
+                        <?= ($params->semester == $s) ? 'selected' : '' ?>><?= ucfirst($s) ?></option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+            <div class="w-full md:w-2/12">
+                <select name="perPage"
+                    class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+                    onchange="this.form.submit()">
+                    <?php foreach ([5, 10, 25, 50] as $perPage): ?><option value="<?= $perPage ?>"
+                        <?= ($params->perPage == $perPage) ? 'selected' : '' ?>><?= $perPage ?> per page</option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+            <div class="w-full md:w-1/12">
+                <a href="<?= $params->getResetUrl($baseUrl) ?>"
+                    class="block text-center px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600">Reset</a>
+            </div>
+        </div>
+        <input type="hidden" name="sort" value="<?= $params->sort; ?>">
+        <input type="hidden" name="order" value="<?= $params->order; ?>">
+    </form>
 
     <div class="overflow-x-auto">
         <table class="table-auto w-full bg-white border border-gray-300">
             <thead>
                 <tr class="bg-blue-500 text-white">
                     <th class="border border-gray-300 py-2 px-4 text-center">ID</th>
-                    <th class="border border-gray-300 py-2 px-4 text-center">Course Code</th>
-                    <th class="border border-gray-300 py-2 px-4 text-center">Course Name</th>
+                    <th class="border border-gray-300 py-2 px-4 text-center">
+                        <a href="<?= $params->getSortUrl('code', $baseUrl) ?>">
+                            Course Code
+                            <?= $params->isSortedBy('code') ? ($params->getSortDirection() == 'asc' ? '↑' : '↓') : '↕' ?>
+                        </a>
+                    </th>
+                    <th class="border border-gray-300 py-2 px-4 text-center">
+                        <a href="<?= $params->getSortUrl('name', $baseUrl) ?>">
+                            Course Name
+                            <?= $params->isSortedBy('name') ? ($params->getSortDirection() == 'asc' ? '↑' : '↓') : '↕' ?>
+                        </a>
+                    </th>
                     <th class="border border-gray-300 py-2 px-4 text-center">Credits</th>
                     <th class="border border-gray-300 py-2 px-4 text-center">Semester</th>
                     <th class="border border-gray-300 py-2 px-4 text-center">Action</th>
@@ -73,6 +132,13 @@
                 <?php endforeach; ?>
             </tbody>
         </table>
+        <div class="flex justify-center mt-2">
+            <?= $pager->links('courses', 'custom_pager') ?>
+        </div>
+        <div class="text-center mt-2">
+            <small>Menampilkan <?= count($courses) ?> dari <?= $total ?>
+                total data (Halaman <?= $params->page ?>)</small>
+        </div>
     </div>
 </div>
 <?= $this->endSection() ?>

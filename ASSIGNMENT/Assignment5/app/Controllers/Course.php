@@ -3,6 +3,7 @@
 namespace App\Controllers;
 
 use App\Controllers\BaseController;
+use App\Libraries\DataParams;
 use App\Models\CourseModel;
 
 class Course extends BaseController
@@ -23,15 +24,30 @@ class Course extends BaseController
 
     public function courseList()
     {
-        $courseModel = new CourseModel();
-        $courses = $courseModel->findAll();
+        $params = new DataParams([
+            'search' => $this->request->getGet('search'),
+            'credits' => $this->request->getGet('credits'),
+            'semester' => $this->request->getGet('semester'),
+            'sort' => $this->request->getGet('sort'),
+            'order' => $this->request->getGet('order'),
+            'page' => $this->request->getGet('page_courses'),
+            'perPage' => $this->request->getGet('perPage'),
+        ]);
+
+        $results = $this->courseModel->getFilteredCourses($params);
 
         $data = [
             'page_title' => 'Course List',
-            'courses'    => $courses,
+            'courses' => $results['courses'],
+            'pager' => $results['pager'],
+            'total' => $results['total'],
+            'params' => $params,
             'hideHeader' => true,
+            'credits' => $this->courseModel->getAllCredits(),
+            'semesters' => $this->courseModel->getAllSemesters(),
+            'baseUrl' => base_url('course-list'),
         ];
-        
+
         return view('pages/admin/course/v_courseList', $data);
     }
 

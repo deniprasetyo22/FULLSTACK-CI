@@ -200,18 +200,6 @@ class Student extends BaseController
     /* Admin */
     public function studentList()
     {
-        // $studentModel = new StudentModel();
-        // $students = $studentModel->findAll();
-    
-        // $data = [
-        //     'page_title' => 'Student List',
-        //     'students'   => $this->studentModel->paginate(3, 'students'),
-        //     'pager'      => $this->studentModel->pager,
-        //     'hideHeader' => true
-        // ];
-        
-        // return view('pages/admin/student/v_studentList', $data);
-
         $params = new DataParams([
             'search' => $this->request->getGet('search'),
             'study_program' => $this->request->getGet('study_program'),
@@ -219,14 +207,11 @@ class Student extends BaseController
             'entry_year'=> $this->request->getGet('entry_year'),
             'sort' => $this->request->getGet('sort'),
             'order' => $this->request->getGet('order'),
-            'page_students' => $this->request->getGet('page_students'),
+            'page' => $this->request->getGet('page_students'),
             'perPage' => $this->request->getGet('perPage'),
         ]);
 
-        // dd($params);    
-
         $results = $this->studentModel->getFilteredUsers($params);
-
 
         $data = [
             'page_title' => 'Student List',
