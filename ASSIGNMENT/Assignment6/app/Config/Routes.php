@@ -1,0 +1,94 @@
+<?php
+
+use CodeIgniter\Router\RouteCollection;
+
+/**
+ * @var RouteCollection $routes
+ */
+// $routes->get('/', 'Home::index');
+$routes->get('/', 'Student::index');
+// $routes->get('/student/(:segment)', 'Student::profile/$1');
+$routes->get('/read','Student::read');
+
+// $routes->get('/dashboard', 'Admin::index');
+
+// $routes->get('/student-list', 'Student::studentList', ['as' => 'student-list']);
+// $routes->get('/student-profile/(:segment)', 'Student::studentProfile/$1', ['as' => 'student-profile']);
+// $routes->get('/create-student', 'Student::createStudent', ['as' => 'create-student']);
+// $routes->post('/store-student', 'Student::storeStudent', ['as' => 'store-student']);
+// $routes->delete('/delete-student/(:num)', 'Student::deleteStudent/$1', ['as' => 'delete-student']);
+// $routes->get('/edit-student/(:num)', 'Student::editStudent/$1', ['as' => 'edit-student']);
+// $routes->post('/update-student/(:num)', 'Student::updateStudent/$1', ['as' => 'update-student']);
+
+// $routes->get('/course-list', 'Course::courseList', ['as' => 'course-list']);
+// $routes->get('/course-detail/(:segment)', 'Course::courseDetail/$1', ['as' => 'course-detail']);
+// $routes->get('/create-course', 'Course::createCourse', ['as' => 'create-course']);
+// $routes->post('/store-course', 'Course::storeCourse', ['as' => 'store-course']);
+// $routes->delete('/delete-course/(:num)', 'Course::deleteCourse/$1', ['as' => 'delete-course']);
+// $routes->get('/edit-course/(:num)', 'Course::editCourse/$1', ['as' => 'edit-course']);
+// $routes->put('/update-course/(:num)', 'Course::updateCourse/$1', ['as' => 'update-course']);
+
+$routes->group('', ['namespace' => 'App\Controllers'], function($routes) {
+    // Registrasi
+    $routes->get('register', 'Auth::register', ['as' => 'register']);
+    $routes->post('register', 'Auth::attemptRegister');
+    
+    // Route lain seperti login, dll
+    $routes->get('login', 'Auth::login', ['as' => 'login']);
+    $routes->post('login', 'Auth::attemptLogin');
+});
+
+// Routes yang hanya bisa diakses admin
+$routes->group('admin', ['filter' => 'role:admin'], function($routes) {
+    $routes->get('dashboard', 'Dashboard::adminDashboard');
+    $routes->get('manage-users', 'Auth::manageUsers');   
+    $routes->get('manage-roles', 'Auth::manageRoles');     
+    
+    $routes->get('student-list', 'Student::studentList', ['as' => 'student-list']);
+    $routes->get('student-profile/(:segment)', 'Student::studentProfile/$1', ['as' => 'student-profile']);
+    $routes->get('create-student', 'Student::createStudent', ['as' => 'create-student']);
+    $routes->post('store-student', 'Student::storeStudent', ['as' => 'store-student']);
+    $routes->delete('delete-student/(:num)', 'Student::deleteStudent/$1', ['as' => 'delete-student']);
+    $routes->get('edit-student/(:num)', 'Student::editStudent/$1', ['as' => 'edit-student']);
+    $routes->post('update-student/(:num)', 'Student::updateStudent/$1', ['as' => 'update-student']);
+});
+
+// Routes yang hanya bisa diakses lecturer
+$routes->group('lecturer', ['filter' => 'role:lecturer'], function($routes) {
+    $routes->get('dashboard', 'Dashboard::lecturerDashboard');
+    $routes->get('manage-courses', 'Course::courseList');
+});
+
+// Routes yang hanya bisa diakses student
+$routes->group('student', ['filter' => 'role:student'], function($routes) {
+    $routes->get('dashboard', 'Dashboard::studentDashboard');
+    $routes->get('enrollment', 'Student::enrollment');
+    $routes->get('grades', 'Student::grades');
+    $routes->get('profile', 'Student::profile');
+});
+
+ // Routes yang bisa diakses oleh lecturer dan admin
+$routes->group('', ['filter' => 'role:admin,lecturer'], function($routes) {
+    $routes->get('reports', 'Report::index');
+    $routes->get('generate-report', 'Report::generate');
+
+    $routes->get('course-list', 'Course::courseList', ['as' => 'course-list']);
+    $routes->get('course-detail/(:segment)', 'Course::courseDetail/$1', ['as' => 'course-detail']);
+    $routes->get('create-course', 'Course::createCourse', ['as' => 'create-course']);
+    $routes->post('store-course', 'Course::storeCourse', ['as' => 'store-course']);
+    $routes->delete('delete-course/(:num)', 'Course::deleteCourse/$1', ['as' => 'delete-course']);
+    $routes->get('edit-course/(:num)', 'Course::editCourse/$1', ['as' => 'edit-course']);
+    $routes->put('update-course/(:num)', 'Course::updateCourse/$1', ['as' => 'update-course']);
+});
+
+// Route unauthorized
+$routes->get('unauthorized', 'Home::unauthorized');
+
+$routes->group('admin/users', ['filter' => 'role:admin'], function ($routes) {
+    $routes->get('/', 'Users::index');
+    $routes->get('create', 'Users::create');
+    $routes->post('store', 'Users::store');
+    $routes->get('edit/(:num)', 'Users::edit/$1');
+    $routes->put('update/(:num)', 'Users::update/$1'); 
+    $routes->delete('delete/(:num)', 'Users::delete/$1');
+});
