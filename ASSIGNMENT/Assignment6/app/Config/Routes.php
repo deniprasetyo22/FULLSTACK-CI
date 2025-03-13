@@ -6,9 +6,9 @@ use CodeIgniter\Router\RouteCollection;
  * @var RouteCollection $routes
  */
 // $routes->get('/', 'Home::index');
-$routes->get('/', 'Student::index');
+// $routes->get('/', 'Student::index');
 // $routes->get('/student/(:segment)', 'Student::profile/$1');
-$routes->get('/read','Student::read');
+// $routes->get('/read','Student::read');
 
 // $routes->get('/dashboard', 'Admin::index');
 
@@ -27,6 +27,9 @@ $routes->get('/read','Student::read');
 // $routes->delete('/delete-course/(:num)', 'Course::deleteCourse/$1', ['as' => 'delete-course']);
 // $routes->get('/edit-course/(:num)', 'Course::editCourse/$1', ['as' => 'edit-course']);
 // $routes->put('/update-course/(:num)', 'Course::updateCourse/$1', ['as' => 'update-course']);
+
+
+$routes->get('/', 'Auth::login');
 
 $routes->group('', ['namespace' => 'App\Controllers'], function($routes) {
     // Registrasi
@@ -51,6 +54,13 @@ $routes->group('admin', ['filter' => 'role:admin'], function($routes) {
     $routes->delete('delete-student/(:num)', 'Student::deleteStudent/$1', ['as' => 'delete-student']);
     $routes->get('edit-student/(:num)', 'Student::editStudent/$1', ['as' => 'edit-student']);
     $routes->post('update-student/(:num)', 'Student::updateStudent/$1', ['as' => 'update-student']);
+
+    $routes->get('enrollment', 'Enrollment::index');
+    $routes->get('create-enrollment', 'Enrollment::create');
+    $routes->post('store-enrollment', 'Enrollment::store');
+    $routes->get('edit-enrollment/(:num)', 'Enrollment::edit/$1');
+    $routes->put('update-enrollment/(:num)', 'Enrollment::update/$1');
+    $routes->delete('delete-enrollment/(:num)', 'Enrollment::delete/$1');
 });
 
 // Routes yang hanya bisa diakses lecturer
@@ -65,6 +75,10 @@ $routes->group('student', ['filter' => 'role:student'], function($routes) {
     $routes->get('enrollment', 'Student::enrollment');
     $routes->get('grades', 'Student::grades');
     $routes->get('profile', 'Student::profile');
+    $routes->get('edit-my-profile', 'Student::editMyProfile');
+    $routes->put('update-my-profile/(:num)', 'Student::updateMyProfile/$1');
+
+    $routes->get('my-enrollments', 'Enrollment::myEnrollments');
 });
 
  // Routes yang bisa diakses oleh lecturer dan admin

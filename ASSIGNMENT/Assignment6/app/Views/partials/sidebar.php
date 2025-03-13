@@ -7,12 +7,12 @@
     <!-- Menu Items -->
     <nav class="flex-1 p-4">
         <ul class="space-y-2">
-            <li>
+            <!-- <li>
                 <a href="/" class="flex items-center p-2 rounded hover:bg-gray-700">
                     <i class="fa-solid fa-house w-5"></i>
                     <span class="ml-3">Home</span>
                 </a>
-            </li>
+            </li> -->
 
             <?php if(in_groups('admin')) : ?>
             <li>
@@ -50,7 +50,7 @@
             </li>
             <?php endif; ?>
 
-            <?php if(in_groups('admin')) : ?>
+            <?php if(in_groups('admin') || in_groups('lecturer')) : ?>
             <li>
                 <a href="<?= base_url('course-list') ?>" class="flex items-center p-2 rounded hover:bg-gray-700">
                     <i class="fa-solid fa-list w-5"></i>
@@ -64,6 +64,34 @@
                 <a href="<?= base_url('admin/users') ?>" class="flex items-center p-2 rounded hover:bg-gray-700">
                     <i class="fa-solid fa-users w-5"></i>
                     <span class="ml-3">User List</span>
+                </a>
+            </li>
+            <?php endif; ?>
+
+            <?php if(in_groups('student')) : ?>
+            <li>
+                <a href="<?= base_url('student/profile' ) ?>" class="flex items-center p-2 rounded hover:bg-gray-700">
+                    <i class="fa-solid fa-user w-5"></i>
+                    <span class="ml-3">My Profile</span>
+                </a>
+            </li>
+            <?php endif; ?>
+
+            <?php if(in_groups('admin')) : ?>
+            <li>
+                <a href="<?= base_url('admin/enrollment') ?>" class="flex items-center p-2 rounded hover:bg-gray-700">
+                    <i class="fa-solid fa-book-open w-5"></i>
+                    <span class="ml-3">Enrollments</span>
+                </a>
+            </li>
+            <?php endif; ?>
+
+            <?php if(in_groups('student')) : ?>
+            <li>
+                <a href="<?= base_url('student/my-enrollments') ?>"
+                    class="flex items-center p-2 rounded hover:bg-gray-700">
+                    <i class="fa-solid fa-book-open w-5"></i>
+                    <span class="ml-3">My Enrollments</span>
                 </a>
             </li>
             <?php endif; ?>

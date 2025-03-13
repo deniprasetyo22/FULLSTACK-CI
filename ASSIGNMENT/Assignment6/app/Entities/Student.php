@@ -16,7 +16,8 @@ class Student extends Entity
         'entry_year' => null,
         'gpa' => null,
         'created_at' => null,
-        'updated_at' => null
+        'updated_at' => null,
+        'user_id' => null,
     ];
 
     protected $casts = [
@@ -29,6 +30,7 @@ class Student extends Entity
         'entry_year'=> 'integer',
         'gpa' => 'float',
         'created_at' => 'datetime',
-        'updated_at' => 'datetime'
+        'updated_at' => 'datetime',
+        'user_id' => 'integer'
     ];
 }

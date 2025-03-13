@@ -2,6 +2,7 @@
 
 namespace App\Controllers;
 
+use App\Models\StudentModel;
 use Myth\Auth\Controllers\AuthController as MythAuthController;
 use Myth\Auth\Models\UserModel;
 use Myth\Auth\Models\GroupModel;
@@ -12,6 +13,7 @@ class Auth extends MythAuthController
     protected $config;
     protected $userModel;
     protected $groupModel;
+    protected $studentModel;
     
     public function __construct()
     {
@@ -19,6 +21,7 @@ class Auth extends MythAuthController
 
         $this->userModel = new UserModel();
         $this->groupModel = new GroupModel();
+        $this->studentModel = new StudentModel();
 
         $this->auth = service('authentication');
     }
@@ -73,7 +76,25 @@ class Auth extends MythAuthController
             if ($studentGroup) {
                 $this->groupModel->addUserToGroup($user->id, $studentGroup->id);
             }
-        }             
+
+            // Simpan data student
+            $studentData = [
+                'student_id'      => random_int(100000, 999999),
+                'name'            => 'Update Your Name',
+                'study_program'   => 'Update Your Program Study',
+                'current_semester'=> 1,
+                'academic_status' => 'Active',
+                'entry_year'      => date('Y'),
+                'gpa'             => 0.00,
+                'user_id'         => $user->id
+            ];
+    
+            // Simpan data student
+            $this->studentModel->insert($studentData);
+
+        }
+
+
         return redirect()->route('login')->with('message', lang('Auth.registerSuccess'));
 
 

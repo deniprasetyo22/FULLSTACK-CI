@@ -16,9 +16,9 @@
         <div class="hidden w-full md:block md:w-auto text-center" id="navbar-default">
             <ul
                 class="font-medium flex flex-col p-4 md:p-0 mt-4 border border-gray-100 rounded-lg md:flex-row md:space-x-8 rtl:space-x-reverse md:mt-0 md:border-0">
-                <li>
+                <!-- <li>
                     <a href="/" class="block py-2 px-3 text-white md:p-0 hover:text-black">Student</a>
-                </li>
+                </li> -->
                 <?php if(in_groups('admin')) : ?>
                 <li>
                     <a href="<?= base_url('admin/dashboard') ?>"
@@ -47,9 +47,9 @@
                 <?php endif; ?>
                 <li>
                     <?php if(logged_in()) : ?>
-                    <a href="/logout">Logout</a>
+                    <a href="/logout" class="bg-red-500 hover:bg-red-600 text-white px-4 py-1.5 rounded-md">Logout</a>
                     <?php else : ?>
-                    <a href="/login">Login</a>
+                    <a href="/login" class="bg-green-500 hover:bg-green-600 text-white px-4 py-1.5 rounded-md">Login</a>
                     <?php endif; ?>
                 </li>
             </ul>

@@ -188,8 +188,8 @@ class Auth extends BaseConfig
      *
      * @var string|null Name of the ActivatorInterface class
      */
-    // public $requireActivation = 'Myth\Auth\Authentication\Activators\EmailActivator';
-    public $requireActivation = null;
+    public $requireActivation = 'Myth\Auth\Authentication\Activators\EmailActivator';
+    // public $requireActivation = null;
 
     /**
      * --------------------------------------------------------------------
@@ -202,7 +202,6 @@ class Auth extends BaseConfig
      * @var string|null Name of the ResetterInterface class
      */
     public $activeResetter = 'Myth\Auth\Authentication\Resetters\EmailResetter';
-    // public $activeResetter = null;
 
     /**
      * --------------------------------------------------------------------
@@ -218,6 +217,7 @@ class Auth extends BaseConfig
      * @var bool
      */
     public $allowRemembering = false;
+    // public $allowRemembering = true;
 
     /**
      * --------------------------------------------------------------------

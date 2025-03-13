@@ -10,7 +10,7 @@ class EnrollmentModel extends Model
     protected $primaryKey       = 'id';
     protected $useAutoIncrement = true;
     protected $returnType       = \App\Entities\Enrollment::class;
-    protected $allowedFields    = ['id', 'student_id', 'course_id', 'academic_year', 'semester', 'status', 'created_at', 'updated_at'];
+    protected $allowedFields    = ['student_id', 'course_id', 'academic_year', 'semester', 'status'];
     protected $useSoftDeletes   = false;
     protected $useTimestamps    = true;
     protected $createdField     = 'created_at';
@@ -46,4 +46,11 @@ class EnrollmentModel extends Model
             'string' => 'Status must be a string',
         ],
     ];
+
+    public function getEnrollmentsWithStudentAndCourse()
+    {
+        return $this->select('enrollments.* , students.name as student_name, courses.name as course_name')
+            ->join('students', 'students.id = enrollments.student_id')
+            ->join('courses', 'courses.id = enrollments.course_id');
+    }
 }
