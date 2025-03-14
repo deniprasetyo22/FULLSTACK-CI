@@ -84,7 +84,9 @@ phpunit
 #-------------------------
 # Composer
 #-------------------------
-vendor/
+vendor/*
+!vendor/myth/
+!vendor/myth/auth/
 
 #-------------------------
 # IDE / Development Files
