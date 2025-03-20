@@ -56,6 +56,20 @@
                     <td class="py-2 px-4 font-bold">Entry Year</td>
                     <td class="py-2 px-4"><?= $student->entry_year ?></td>
                 </tr>
+                <tr class="border-b hover:bg-gray-100">
+                    <td class="py-2 px-4 font-bold">Uploaded File</td>
+                    <td class="py-2 px-4">
+                        <?php if (!empty($student->file)) : ?>
+                        <a class="text-blue-500 hover:underline"
+                            href="<?= base_url('student/file/' . $student->file) ?>" target="_blank">
+                            View
+                        </a>
+                        <?php else : ?>
+                        <span class="text-gray-500">No file uploaded</span>
+                        <?php endif; ?>
+                    </td>
+                </tr>
+
             </tbody>
         </table>
     </div>

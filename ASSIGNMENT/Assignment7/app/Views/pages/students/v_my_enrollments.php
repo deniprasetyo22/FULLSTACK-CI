@@ -15,6 +15,14 @@
     </div>
     <?php endif; ?>
 
+    <div>
+        <a href="<?= url_to('student/enrollment/create-enrollment') ?>"
+            class="bg-blue-500 hover:bg-blue-600 rounded text-white py-1.5 px-3">
+            <i class="fa-solid fa-plus"></i>
+            <span>Add</span>
+        </a>
+    </div>
+
     <div class="overflow-x-auto">
         <table class="table-auto w-full bg-white border border-gray-300">
             <thead>

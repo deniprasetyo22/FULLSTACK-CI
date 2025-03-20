@@ -8,7 +8,7 @@
 <div class="flex flex-col p-6 bg-white shadow rounded-lg h-full">
 
     <div>
-        <a href="<?= base_url('student/my-profile') ?>" class="text-blue-500 hover:underline">
+        <a href="<?= url_to('student/profile') ?>" class="text-blue-500 hover:underline">
             <i class="fa-solid fa-arrow-left"></i>
             Back
         </a>
@@ -16,7 +16,8 @@
 
     <h2 class="text-2xl font-semibold text-center mb-2"><?= esc($page_title) ?></h2>
 
-    <form action="<?= base_url('student/update-my-profile/'.$student->id) ?>" method="POST" id="formData" novalidate>
+    <form action="<?= base_url('student/update-my-profile/'.$student->id) ?>" method="POST" id="formData"
+        enctype="multipart/form-data" novalidate>
         <?= csrf_field()  ?>
         <input type="hidden" name="_method" value="PUT">
 
@@ -91,6 +92,30 @@
             <?php endif; ?>
         </div>
 
+        <div class="mb-4">
+            <label class="block text-gray-700">
+                File <span class="text-sm text-gray-500">(PDF file, max 5MB)</span>
+            </label>
+
+            <?php if (!empty($student->file)) : ?>
+            <div class="mb-2">
+                <p class="text-sm text-gray-700">Current File:
+                    <a href="<?= base_url('student/file/' . esc($student->file)) ?>" target="_blank"
+                        class="text-blue-500 hover:underline">
+                        View File
+                    </a>
+                </p>
+            </div>
+            <?php endif; ?>
+
+            <input type="file" name="file" id="fileInput" accept="application/pdf"
+                class="w-full p-2 border rounded <?= session('errors.file') ? 'border-red-500' : '' ?>">
+
+            <?php if (session('errors.file')) : ?>
+            <p class="text-red-500 text-sm"><?= session('errors.file') ?></p>
+            <?php endif; ?>
+        </div>
+
         <div class="flex justify-center">
             <button type="submit" class="bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded">
                 <i class="fa-solid fa-save"></i> Save Changes
@@ -104,7 +129,9 @@
 let pristine;
 window.onload = function() {
     let form = document.getElementById("formData");
+    let fileInput = document.getElementById("fileInput");
 
+    // Pristine.js Setup
     var pristine = new Pristine(form, {
         classTo: 'mb-4',
         errorClass: 'is-invalid',
@@ -114,6 +141,22 @@ window.onload = function() {
         errorTextClass: 'text-red-500 text-sm'
     });
 
+    // Validasi file dengan Pristine.js
+    pristine.addValidator(fileInput, function(value) {
+        if (!fileInput.files.length) {
+            return true; // Jika tidak ada file, biarkan validasi lainnya menangani
+        }
+
+        let file = fileInput.files[0];
+
+        // Cek ukuran maksimal (5MB)
+        if (file.size > 5 * 1024 * 1024) {
+            return false;
+        }
+
+        // Cek format harus PDF
+        return file.type === "application/pdf";
+    }, "File harus berformat PDF dan tidak lebih dari 5MB", 2, false);
 
     form.addEventListener('submit', function(e) {
         var valid = pristine.validate();

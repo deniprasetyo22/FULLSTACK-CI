@@ -68,6 +68,15 @@ $routes->group('admin', ['filter' => 'role:admin'], function($routes) {
     $routes->get('edit-enrollment/(:num)', 'Enrollment::edit/$1');
     $routes->put('update-enrollment/(:num)', 'Enrollment::update/$1');
     $routes->delete('delete-enrollment/(:num)', 'Enrollment::delete/$1');
+
+    $routes->group('users', function ($routes) {
+        $routes->get('/', 'Users::index');
+        $routes->get('create', 'Users::create');
+        $routes->post('store', 'Users::store');
+        $routes->get('edit/(:num)', 'Users::edit/$1');
+        $routes->put('update/(:num)', 'Users::update/$1'); 
+        $routes->delete('delete/(:num)', 'Users::delete/$1');
+    });
 });
 
 // Routes yang hanya bisa diakses lecturer
@@ -84,8 +93,16 @@ $routes->group('student', ['filter' => 'role:student'], function($routes) {
     $routes->get('profile', 'Student::profile');
     $routes->get('edit-my-profile', 'Student::editMyProfile');
     $routes->put('update-my-profile/(:num)', 'Student::updateMyProfile/$1');
+    $routes->get('file/(:any)', 'Student::file/$1');
 
-    $routes->get('my-enrollments', 'Enrollment::myEnrollments');
+    $routes->group('enrollment', function ($routes) {
+        $routes->get('my-enrollments', 'Enrollment::myEnrollments');
+        $routes->get('create-enrollment', 'Enrollment::createMyEnrollment');
+        $routes->post('store-enrollment', 'Enrollment::storeMyEnrollment');
+        $routes->get('edit-enrollment/(:num)', 'Enrollment::edit/$1');
+        $routes->put('update-enrollment/(:num)', 'Enrollment::update/$1');
+        $routes->delete('delete-enrollment/(:num)', 'Enrollment::delete/$1');
+    });
 });
 
  // Routes yang bisa diakses oleh lecturer dan admin
@@ -104,12 +121,3 @@ $routes->group('', ['filter' => 'role:admin,lecturer'], function($routes) {
 
 // Route unauthorized
 $routes->get('unauthorized', 'Home::unauthorized');
-
-$routes->group('admin/users', ['filter' => 'role:admin'], function ($routes) {
-    $routes->get('/', 'Users::index');
-    $routes->get('create', 'Users::create');
-    $routes->post('store', 'Users::store');
-    $routes->get('edit/(:num)', 'Users::edit/$1');
-    $routes->put('update/(:num)', 'Users::update/$1'); 
-    $routes->delete('delete/(:num)', 'Users::delete/$1');
-});

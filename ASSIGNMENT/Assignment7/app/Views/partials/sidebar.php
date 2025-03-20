@@ -88,7 +88,7 @@
 
             <?php if(in_groups('student')) : ?>
             <li>
-                <a href="<?= base_url('student/my-enrollments') ?>"
+                <a href="<?= base_url('student/enrollment/my-enrollments') ?>"
                     class="flex items-center p-2 rounded hover:bg-gray-700">
                     <i class="fa-solid fa-book-open w-5"></i>
                     <span class="ml-3">My Enrollments</span>

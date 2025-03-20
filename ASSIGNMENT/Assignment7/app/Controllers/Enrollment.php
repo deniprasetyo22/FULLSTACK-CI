@@ -143,6 +143,8 @@ class Enrollment extends BaseController
         return redirect()->to('admin/enrollment')->with('message', 'Enrollment deleted successfully');
     }
 
+
+    /* Enrollment Controller for Student */
     public function myEnrollments()
     {
         $student = $this->studentModel->where('user_id', user()->id)->first();
@@ -164,4 +166,101 @@ class Enrollment extends BaseController
         return view('pages/students/v_my_enrollments', $data);
     }
 
+    public function createMyEnrollment()
+    {
+        $student = $this->studentModel->where('user_id', user()->id)->first();
+        $courses = array_map(fn($course) => $course->toArray(), $this->courseModel->findAll());
+        $semester = [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8
+        ];
+
+        $data = [
+            'page_title'  => 'Create Enrollment',
+            'student'    =>  $student,
+            'courses'     => $courses,
+            'semester'    => $semester,
+            'hideHeader'  => true
+        ];
+        
+        return view('pages/students/v_create_enrollment', $data);
+    }
+
+    public function storeMyEnrollment()
+    {
+        $enrollment = new \App\Entities\Enrollment($this->request->getPost());
+
+        $rules = $this->enrollmentModel->getValidationRules();
+        $messages = $this->enrollmentModel->getValidationMessages();
+    
+        if (!$this->validate($rules, $messages)) {
+            return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
+        }
+
+        $this->enrollmentModel->save($enrollment);
+
+
+        $email = service('email');
+
+        /* Single recipient */
+        $email->setTo(user()->email);
+
+        /* Multi recipient */
+        // $email->setTo('deni123@yopmail.com', 'deni12345@yopmail.com');
+        // $ccList = [
+        //     'deni123@yopmail.com',
+        //     'deni12345@yopmail.com'
+        // ];
+        // $email->setCC($ccList);
+
+        $email->setSubject('Academic Management System - Registration Enrollment Notification');
+
+        $currentUser = $this->studentModel->where('user_id', user()->id)->first();
+        $course = $this->courseModel->find($enrollment->course_id);
+
+        $data = [
+            'title'   => 'Pemberitahuan Penting',
+            'name'    => $currentUser->name,
+            'content' => 'Your registration enrollment was successfully.',
+            'features'=> [
+                "Full Name : " . $currentUser->name,
+                "Student ID : " . $currentUser->student_id,
+                "Course Name : " . $course->name,
+                "Course Credits : " . $course->credits,
+                "Registration Date : " . $course->created_at
+            ]
+        ];
+
+        $message = view('email/v_email_registration_enrollment_template', $data); // Isi konten email
+        $email->setMessage($message);
+        
+        // Tambahkan attachment jika file ada
+        $attachments = [
+            ROOTPATH . 'public/uploads/dokumen.pdf',
+            ROOTPATH . 'public/uploads/laporan.xlsx',
+            ROOTPATH . 'public/uploads/gambar.jpeg'
+        ];
+
+        foreach ($attachments as $filePath) {
+            if (file_exists($filePath)) {
+                $email->attach($filePath);
+            }
+        }
+
+        // kirim email
+        if ($email->send()) {
+            return redirect()->to('student/enrollment/my-enrollments')
+                ->with('message', 'Enrollment added successfully. Email sent.');
+        } else {
+            return redirect()->to('student/enrollment/my-enrollments')
+                ->with('message', 'Enrollment added successfully, but email failed to send.')
+                ->with('email_error', $email->printDebugger());
+        }
+    }
 }

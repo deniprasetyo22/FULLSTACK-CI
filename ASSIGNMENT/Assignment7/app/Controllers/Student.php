@@ -5,6 +5,7 @@ namespace App\Controllers;
 use App\Libraries\DataParams;
 use App\Models\StudentModel;
 use Myth\Auth\Models\UserModel;
+use CodeIgniter\Files\File;
 
 class Student extends BaseController
 {
@@ -343,6 +344,8 @@ class Student extends BaseController
         return redirect()->to('admin/student-list')->with('message', 'Student updated successfully.');
     }
 
+
+    /* Student */
     public function profile()
     {
         $student = $this->studentModel->where('user_id', user()->id)->first();
@@ -374,21 +377,86 @@ class Student extends BaseController
 
     public function updateMyProfile($id)
     {
+        // Tangkap input selain file
         $student = new \App\Entities\Student($this->request->getPost());
+        $file = $this->request->getFile('file'); // Simpan file dalam variabel terpisah
 
+        // Ambil data lama dari database
+        $existingStudent = $this->studentModel->find($id);
+        $oldFilePath = !empty($existingStudent->file) ? WRITEPATH . 'uploads/original/' . $existingStudent->file : null;
+
+        // Validasi file hanya jika ada unggahan baru
+        if ($file && $file->isValid()) {
+            $validationRule = [
+                'file' => [
+                    'label' => 'File',
+                    'rules' => [
+                        'uploaded[file]',
+                        'mime_in[file,application/pdf]',
+                        'max_size[file,5120]', // 5MB dalam KB (5 * 1024)
+                    ],
+                    'errors' => [
+                        'uploaded' => 'Silakan pilih file untuk diunggah',
+                        'mime_in' => 'File harus berformat PDF',
+                        'max_size' => 'Ukuran file tidak boleh melebihi 5MB'
+                    ]
+                ]
+            ];
+
+            if (! $this->validateData([], $validationRule)) {
+                $data = ['errors' => $this->validator->getErrors()];
+                return view('pages/students/v_edit_my_profile', $data);
+            }
+        }
+
+        // Ambil aturan validasi dari model
         $rules = $this->studentModel->getValidationRules();
         $messages = $this->studentModel->getValidationMessages();
-
         $rules['student_id'] = "required|is_unique[students.student_id,id,{$id}]";
-    
+
         if (!$this->validate($rules, $messages)) {
             return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
+        }
+
+        // Jika ada file baru yang diunggah
+        if ($file->isValid() && !$file->hasMoved()) {
+            // $newName = $file->getRandomName();
+            $studentId = $existingStudent->student_id;
+            $createdAt = date('YmdHis');
+            $newName = "{$studentId}_{$createdAt}.pdf";
+
+            $file->move(WRITEPATH . 'uploads/original', $newName);
+
+            // // Hapus file lama jika ada
+            if ($oldFilePath && file_exists($oldFilePath)) {
+                unlink($oldFilePath);
+            }
+
+            // Simpan Path File ke Database
+            $student->file = $newName;
+        } else {
+            // Jika tidak ada file baru, gunakan file lama
+            $student->file = $existingStudent->file;
         }
 
         $this->studentModel->update($id, $student);
 
         return redirect()->to('student/profile')->with('message', 'Profile updated successfully.');
     }
+
+
+    public function file($filename)
+    {
+        $filePath = WRITEPATH . 'uploads/original/' . $filename;
+
+        if (!file_exists($filePath)) {
+            return redirect()->to('/student/profile')->with('error', 'File not found');
+        }
+
+        // return $this->response->download($filePath, null);
+        return $this->response->setContentType(mime_content_type($filePath))->setBody(file_get_contents($filePath));
+    }
+
 }
 
 ?>

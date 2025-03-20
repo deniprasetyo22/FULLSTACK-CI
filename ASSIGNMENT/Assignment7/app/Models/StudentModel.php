@@ -11,7 +11,7 @@ class StudentModel extends Model
     protected $primaryKey       = 'id';
     protected $useAutoIncrement = true;
     protected $returnType       = \App\Entities\Student::class;
-    protected $allowedFields    = ['student_id', 'name', 'study_program', 'current_semester', 'academic_status', 'entry_year', 'gpa', 'user_id'];
+    protected $allowedFields    = ['student_id', 'name', 'study_program', 'current_semester', 'academic_status', 'entry_year', 'gpa', 'user_id', 'file'];
     protected $useSoftDeletes   = false;
     protected $useTimestamps    = true;
     protected $createdField     = 'created_at';
