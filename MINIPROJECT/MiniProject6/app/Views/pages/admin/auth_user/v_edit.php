@@ -16,6 +16,24 @@
             <h2 class="text-2xl font-bold text-center mb-4 text-gray-700">Edit User</h2>
         </div>
 
+        <?php if(session()->getFlashdata('errors')): ?>
+        <div class="flex items-center p-4 mb-4 text-sm text-red-800 rounded-lg bg-red-100" role="alert">
+            <svg class="shrink-0 inline w-4 h-4 me-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
+                fill="currentColor" viewBox="0 0 20 20">
+                <path
+                    d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5Zm3.707 8.207-4 4a1 1 0 0 1-1.414 0l-2-2a1 1 0 0 1 1.414-1.414L9 10.586l3.293-3.293a1 1 0 0 1 1.414 1.414Z" />
+            </svg>
+            <div>
+                <span class="font-medium">Validation Errors:</span>
+                <ul class="mt-2 text-sm">
+                    <?php foreach (session()->getFlashdata('errors') as $error): ?>
+                    <li><?= esc($error) ?></li>
+                    <?php endforeach; ?>
+                </ul>
+            </div>
+        </div>
+        <?php endif; ?>
+
         <div class="mb-4">
             <label class="block text-gray-700 text-sm font-bold mb-2">Full Name</label>
             <input type="text" name="full_name" value="<?= old('full_name', $user->full_name) ?>"
@@ -45,17 +63,6 @@
             <?php if(session('errors.password')): ?>
             <p class="text-sm text-red-500"><?= session('errors.password') ?></p>
             <?php endif; ?>
-        </div>
-
-        <div class="mb-4">
-            <label for="role" class="block text-gray-700 text-sm font-bold mb-2">Role</label>
-            <select name="role" class="border rounded w-full py-2 px-3 text-gray-700">
-                <?php foreach($roles as $role): ?>
-                <option value="<?= $role->id ?>" <?= $user->role == $role->name ? 'selected' : '' ?>>
-                    <?= $role->name ?>
-                </option>
-                <?php endforeach; ?>
-            </select>
         </div>
 
         <div class="mb-4">

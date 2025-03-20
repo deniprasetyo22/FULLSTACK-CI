@@ -37,7 +37,7 @@ class Auth extends MythAuthController
 
     public function attemptLogin()
     {
-        $result = parent::attemptLogin();
+        parent::attemptLogin();
         return $this->redirectBasedOnRole();
     }
 

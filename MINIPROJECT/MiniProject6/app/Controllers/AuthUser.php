@@ -145,8 +145,6 @@ class AuthUser extends BaseController
             throw PageNotFoundException::forPageNotFound();
         }
 
-        $role = $this->roleModel->find($this->request->getPost('role'));
-
         // Data untuk tabel auth_users
         $authUserData = [
             'id'       => $id,
@@ -155,19 +153,31 @@ class AuthUser extends BaseController
             'active'   => $this->request->getPost('status') === 'Active' ? 1 : 0,
         ];
 
-        // Jika password diisi, hash dan tambahkan ke array
+        // Jika password tidak kosong, hash password
         $password = $this->request->getPost('password');
         if (!empty($password)) {
             $authUserData['password_hash'] = password_hash($password, PASSWORD_DEFAULT);
+        } else {
+            unset($authUserData['password_hash']);
         }
 
         // Data untuk tabel users
         $userData = [
             'user_id'   => $id,
+            'username'  => $this->request->getPost('username'),
             'full_name' => $this->request->getPost('full_name'),
-            'role'      => $role ? $role->name : null,
             'status'    => $this->request->getPost('status'),
         ];
+
+        $rules = $this->authUserModel->getValidationRules();
+        $messages = $this->authUserModel->getValidationMessages();
+
+        $rules['username'] = "required|min_length[3]|is_unique[users.username,id,{$id}]";
+        $rules['email'] = "required|valid_email|is_unique[users.email,id,{$id}]";
+
+        if(!$this->validate($rules, $messages)){
+            return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
+        }
 
         // Update auth_users
         $authUpdate = $this->authUserModel->update($id, $authUserData);
@@ -175,8 +185,9 @@ class AuthUser extends BaseController
         // Update users berdasarkan user_id
         $userUpdate = $this->userModel->where('user_id', $id)->set($userData)->update();
 
+
         if ($authUpdate && $userUpdate) {
-            return redirect()->to(base_url('admin/auth'))->with('success', 'User updated successfully');
+            return redirect()->to(base_url('admin/auth'))->with('message', 'User updated successfully');
         }
 
         return redirect()->back()->withInput()->with('errors', 'Failed to update user');
