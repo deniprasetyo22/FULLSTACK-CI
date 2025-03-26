@@ -2,6 +2,8 @@
 
 namespace App\Controllers;
 
+use App\Libraries\DataParams;
+use App\Models\EnrollmentModel;
 use App\Models\StudentGradeModel;
 use App\Models\StudentModel;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
@@ -15,11 +17,13 @@ class Dashboard extends BaseController
     protected $studentModel;
     protected $enrollmentsData;
     // protected $studentsData;
+    protected $enrollmentModel;
 
     public function __construct()
     {
         $this->studentGradeModel = new StudentGradeModel();
         $this->studentModel = new StudentModel();
+        $this->enrollmentModel = new EnrollmentModel();
         $this->enrollmentsData = [
             (object)[
                 'id' => 1,'student_id' => '181001', 'name' => 'Agus Setiawan',
@@ -55,17 +59,44 @@ class Dashboard extends BaseController
         return view('pages/dashboard/v_admin_dashboard', $data);
     }
 
-    private function filterData($student_id = '', $name = '')
+    /* Report */
+    public function adminReport()
     {
-        return $this->enrollmentsData;
+        $search = $this->request->getGet('keyword');
+
+        $params = new DataParams([
+            'search' => $search,
+        ]);
+
+        $filteredData = $this->studentModel->getFilteredStudents($params);
+
+        $study_programs = $this->studentModel->getAllStudyProgram();
+        $entry_years = $this->studentModel->getAllEntryYear();
+
+        $data = [
+            'title1' => 'Laporan Mahasiswa Per Program Studi',
+            'title2' => 'Laporan Enrollment Mata Kuliah',
+            'enrollments' => $filteredData,
+            'filters' => [
+                'keyword' => $search,
+            ],
+            'study_programs' => $study_programs,
+            'entry_years' => $entry_years,
+            'hideHeader' => true
+        ];
+                
+        return view('pages/dashboard/v_admin_report', $data);
     }
 
     public function enrollmentExcel()
     {
-        $student_id = $this->request->getVar('student_id');
-        $name = $this->request->getVar('name');
-                
-        $enrollments = $this->filterData($student_id, $name);
+        $search = $this->request->getGet('keyword');
+
+        $params = new DataParams([
+            'search' => $search,
+        ]);
+
+        $enrollments = $this->studentModel->getFilteredStudents($params);
 
         $spreadsheet = new Spreadsheet();
         $sheet = $spreadsheet->getActiveSheet();
@@ -76,9 +107,10 @@ class Dashboard extends BaseController
         $sheet->getStyle('A1')->getFont()->setSize(14);
         $sheet->getStyle('A1')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
 
+        $firstEnrollment = $enrollments[0] ?? null;
         $sheet->setCellValue('A3', 'Filter:');
-        $sheet->setCellValue('B3', 'Student ID: ' . ($student_id ?? 'Semua'));
-        $sheet->setCellValue('D3', 'Nama: ' . ($name ?? 'Semua'));
+        $sheet->setCellValue('B3', 'Student ID: ' . ($firstEnrollment ? $firstEnrollment->student_id : 'Semua'));
+        $sheet->setCellValue('D3', 'Nama: ' . ($firstEnrollment ? $firstEnrollment->name : 'Semua'));
         $sheet->getStyle('A3:D3')->getFont()->setBold(true);
 
         $headers = [
@@ -111,7 +143,7 @@ class Dashboard extends BaseController
             $sheet->setCellValue('F' . $row, $enrollment->course_code);
             $sheet->setCellValue('G' . $row, $enrollment->course_name);
             $sheet->setCellValue('H' . $row, $enrollment->credits);
-            $sheet->setCellValue('I' . $row, $enrollment->academic_year . ' - ' . $enrollment->enrollment_semester);
+            $sheet->setCellValue('I' . $row, $enrollment->academic_year);
             $sheet->setCellValue('J' . $row, $enrollment->status);
                     
             $row++;
@@ -142,33 +174,6 @@ class Dashboard extends BaseController
         $writer = new Xlsx($spreadsheet);
         $writer->save('php://output');
         exit();
-    }
-
-    /* Report */
-    public function studentsbyprogramForm()
-    {
-        $student_id = $this->request->getVar('student_id');
-        $name = $this->request->getVar('name');
-        
-        $filteredData = $this->filterData($student_id, $name);
-
-        $study_programs = $this->studentModel->getAllStudyProgram();
-        $entry_years = $this->studentModel->getAllEntryYear();
-                
-        $data = [
-            'title1' => 'Laporan Mahasiswa Per Program Studi',
-            'title2' => 'Laporan Enrollment Mata Kuliah',
-            'enrollments' => $filteredData,
-            'filters' => [
-                'student_id' => $student_id,
-                'name' => $name
-            ],
-            'study_programs' => $study_programs,
-            'entry_years' => $entry_years,
-            'hideHeader' => true
-        ];
-                
-        return view('pages/dashboard/v_admin_report', $data);
     }
 
     public function studentsbyprogramPdf()
@@ -203,7 +208,8 @@ class Dashboard extends BaseController
         $pdf->SetTitle('Laporan Mahasiswa');
         $pdf->SetSubject('Laporan Data Mahasiswa');
         
-        $pdf->SetHeaderData('', 0, 'UNIVERSITAS XYZ', '', [0, 0, 0], [0, 64, 128]);
+        $logoPath = 'test.jpg';
+        $pdf->SetHeaderData($logoPath, 30, 'UNIVERSITAS XYZ', '', [0, 0, 0], [0, 64, 128]);
         $pdf->setFooterData([0, 64, 0], [0, 64, 128]);
         
         $pdf->setHeaderFont(['helvetica', '', 12]);
@@ -348,54 +354,57 @@ class Dashboard extends BaseController
     /* Student Dashboard */
     public function studentDashboard()
     {
-        $creditsByGrade = $this->getCreditsByGrade();
-        $creditComparison = $this->getCreditComparison();
-        $gpaData = $this->getGpaPerSemester();
+        $currentUser = $this->studentModel->where('user_id', user()->id)->first();
+        $studentId = $currentUser->id;
+
+        $creditDistributionByGrade = $this->creditDistributionByGrade($studentId);
+        $creditComparison = $this->getCreditComparison($studentId);
+        $gpaProgressPerSemester = $this->gpaProgressPerSemester($studentId);
         
         return view('pages/dashboard/v_student_dashboard', [   
             'hideHeader'=>true,        
-            'creditsByGrade' => json_encode($creditsByGrade),
+            'creditDistributionByGrade' => json_encode($creditDistributionByGrade),
             'creditComparison' => json_encode($creditComparison),
-            'gpaData' => json_encode($gpaData),
+            'gpaProgressPerSemester' => json_encode($gpaProgressPerSemester),
         
         ]);
     }
 
-    private function getCreditsByGrade()
+    private function creditDistributionByGrade($studentId)
     {  
-        $currentUser = $this->studentModel->where('user_id', user()->id)->first();
-        $getStudentGradeData = $this->studentGradeModel->getStudentGradesData()->where('enrollments.student_id', $currentUser->id)->findAll();
-        $creditTotal = array_sum(array_column($getStudentGradeData, 'credits'));
+        $grades = $this->studentGradeModel->getCreditDistrubutionByGrade($studentId);
 
-        $dummyGradeCredits = [
-            ['grade_letter' => 'A', 'credits' => 45],
-            ['grade_letter' => 'B+', 'credits' => 20],
-            ['grade_letter' => 'B', 'credits' => 32],
-            ['grade_letter' => 'C', 'credits' => 8],
-            ['grade_letter' => 'C', 'credits' => 18],
-            ['grade_letter' => 'D', 'credits' => 6]
-        ];
-    
+        // Daftar warna untuk setiap grade
         $backgroundColors = [
-            'A' => 'rgb(54, 162, 235)',    // Biru untuk A
-            'B+' => 'rgb(75, 192, 192)',    // Cyan untuk B+
-            'B' =>'rgb(153, 102, 255)',   // Ungu untuk B
-            'C+' =>'rgb(255, 205, 86)',    // Kuning untuk C+
-            'C' =>'rgb(255, 159, 64)',    // Oranye untuk C
-            'D' =>'rgb(255, 99, 132)'     // Merah untuk D
+            'A'  => 'rgb(54, 162, 235)',   // Biru
+            'A-' => 'rgb(100, 200, 150)',  // Hijau Muda
+            'B+' => 'rgb(75, 192, 192)',   // Cyan
+            'B'  => 'rgb(153, 102, 255)',  // Ungu
+            'B-' => 'rgb(120, 80, 200)',   // Ungu Gelap
+            'C+' => 'rgb(255, 205, 86)',   // Kuning
+            'C'  => 'rgb(255, 159, 64)',   // Oranye
+            'D'  => 'rgb(255, 99, 132)',   // Merah
+            'E'  => 'rgb(180, 60, 60)',    // Merah Gelap
         ];
 
-        foreach ($dummyGradeCredits as $row) {
-            $gradeLabels[] = $row['grade_letter'] . ' = '. $row['credits'] . ' Credits';
-            $creditCounts[] = (int)$row['credits'];
-            $colors[] = $backgroundColors[$row['grade_letter']];
+        $gradeLabels = [];
+        $creditCounts = [];
+        $colors = [];
+
+        foreach ($grades as $grade) {
+            $gradeLetter = $grade['grade_letter'];
+            $totalCredits = (int) $grade['total_credits'];
+
+            $gradeLabels[] = $gradeLetter . ' = ' . $totalCredits . ' Credits';
+            $creditCounts[] = $totalCredits;
+            $colors[] = $backgroundColors[$gradeLetter] ?? 'rgb(200, 200, 200)'; // Default abu-abu jika tidak ada di daftar
         }
-        
+
         return [
             'labels' => $gradeLabels,
             'datasets' => [
                 [
-                    'label' => 'Credits by Grade',
+                    'label' => 'Credits By Grade',
                     'data' => $creditCounts,
                     'backgroundColor' => $colors,
                     'hoverOffset' => 4
@@ -404,20 +413,35 @@ class Dashboard extends BaseController
         ];
     }
 
-    private function getCreditComparison()
+    private function getCreditComparison($studentId)
     {
+        $credits = $this->enrollmentModel->getCreditsTaken($studentId);
+        // dd($credits);
+        
+        $creditsTakenMap = [];
+        foreach ($credits as $credit) {
+            $creditsTakenMap[$credit['semester']] = (int)$credit['credits'];
+        }
+
         $dummyCredits = [
-            ['semester' => 1, 'credits_taken' => 20, 'credits_required' => 20],
-            ['semester' => 2, 'credits_taken' => 19, 'credits_required' => 22],
-            ['semester' => 3, 'credits_taken' => 22, 'credits_required' => 24],
-            ['semester' => 4, 'credits_taken' => 20, 'credits_required' => 22],
-            ['semester' => 5, 'credits_taken' => 18, 'credits_required' => 20],
-            ['semester' => 6, 'credits_taken' => 16, 'credits_required' => 18]
+            ['semester' => 1, 'credits_required' => 20],
+            ['semester' => 2, 'credits_required' => 22],
+            ['semester' => 3, 'credits_required' => 24],
+            ['semester' => 4, 'credits_required' => 22],
+            ['semester' => 5, 'credits_required' => 20],
+            ['semester' => 6, 'credits_required' => 18],
+            ['semester' => 7, 'credits_required' => 18],
+            ['semester' => 8, 'credits_required' => 18]
         ];
 
+        $labels = [];
+        $creditsTaken = [];
+        $creditsRequired = [];
+
         foreach ($dummyCredits as $row) {
-            $labels[] = 'Semester ' . $row['semester'];
-            $creditsTaken[] = (int)$row['credits_taken'];
+            $semester = $row['semester'];
+            $labels[] = 'Semester ' . $semester;
+            $creditsTaken[] = $creditsTakenMap[$semester] ?? 0;
             $creditsRequired[] = (int)$row['credits_required'];
         }
     
@@ -442,23 +466,17 @@ class Dashboard extends BaseController
         ];
     }
 
-    private function getGpaPerSemester()
+    private function gpaProgressPerSemester($studentId)
     {
-        $dummyGpaData = [
-            ['semester' => 1, 'semester_gpa' => 3.45],
-            ['semester' => 2, 'semester_gpa' => 2.52],
-            ['semester' => 3, 'semester_gpa' => 3.21],
-            ['semester' => 4, 'semester_gpa' => 2.68],
-            ['semester' => 5, 'semester_gpa' => 3.75],
-            ['semester' => 6, 'semester_gpa' => 2.82],
-            ['semester' => 7, 'semester_gpa' => 3.41],
-            ['semester' => 8, 'semester_gpa' => 2.95],
-        ];
-        foreach ($dummyGpaData as $row) {
+        $gpaProgress = $this->enrollmentModel->getGpaProgressPerSemester($studentId);
+
+        $semesters = [];
+        $gpaData = [];
+        foreach ($gpaProgress as $row) {
             $semesters[] = 'Semester ' . $row['semester'];
-            $gpaData[] = round($row['semester_gpa'], 2);
+            $gpaData[] = $row['gpa'];
         }
-        
+
         return [
             'labels' => $semesters,
             'datasets' => [
@@ -472,6 +490,7 @@ class Dashboard extends BaseController
             ]
         ];
     }
+
 
 }
 

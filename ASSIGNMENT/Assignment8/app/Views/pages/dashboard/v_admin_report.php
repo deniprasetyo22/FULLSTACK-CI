@@ -10,18 +10,17 @@ Admin Report
         <h2 class="text-center text-2xl font-semibold mb-4"><?= $title2 ?></h2>
 
         <div class="bg-white shadow-md rounded-lg p-4 mb-4">
-            <form class="grid grid-cols-1 md:grid-cols-2 gap-4" method="get"
-                action="<?= site_url('admin/dashboard') ?>">
+            <form class="grid grid-cols-1 md:grid-cols-2 gap-4" method="get" action="<?= site_url('admin/report') ?>">
                 <div>
-                    <input type="text" id="name" name="name"
+                    <input type="text" id="keyword" name="keyword"
                         class="w-full border border-gray-300 rounded-lg p-2 focus:ring focus:ring-blue-300"
-                        placeholder="Masukkan NIM atau Nama" value="<?= $filters['name'] ?? '' ?>">
+                        placeholder="Masukkan NIM atau Nama" value="<?= $filters['keyword'] ?? '' ?>">
                 </div>
                 <div class="flex items-end gap-2">
                     <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600">
                         Lihat Laporan
                     </button>
-                    <a href="<?= site_url('admin/dashboard') ?>"
+                    <a href="<?= site_url('admin/report') ?>"
                         class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600">
                         Reset
                     </a>
@@ -30,7 +29,7 @@ Admin Report
         </div>
 
         <div class="flex justify-end mb-3">
-            <a href="<?= site_url('admin/report') . (!empty($filters['student_id']) || !empty($filters['name']) ? '?' . http_build_query($filters) : '') ?>"
+            <a href="<?= site_url('admin/export-excel-report') . (!empty($filters['keyword']) ? '?' . http_build_query($filters) : '') ?>"
                 class="bg-green-500 text-white px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-green-600">
                 <i class="bi bi-file-excel"></i> Export Excel
             </a>
@@ -71,7 +70,7 @@ Admin Report
                             <td class="border border-gray-300 p-2"><?= $enrollment->course_name ?></td>
                             <td class="border border-gray-300 p-2"><?= $enrollment->credits ?></td>
                             <td class="border border-gray-300 p-2">
-                                <?= $enrollment->academic_year . ' - ' . $enrollment->enrollment_semester ?></td>
+                                <?= $enrollment->academic_year ?></td>
                             <td class="border border-gray-300 p-2"><?= $enrollment->status ?></td>
                         </tr>
                         <?php endforeach; ?>

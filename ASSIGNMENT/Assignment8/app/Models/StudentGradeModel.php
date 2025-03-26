@@ -41,10 +41,14 @@ class StudentGradeModel extends Model
         ],
     ];
 
-    public function getStudentGradesData()
+    public function getCreditDistrubutionByGrade($studentId)
     {
-        return $this->select('student_grades.*, enrollments.*, courses.*')
-            ->join('enrollments', 'enrollments.id = student_grades.enrollment_id')
-            ->join('courses', 'courses.id = enrollments.course_id');
+        return $this->select('student_grades.grade_letter, SUM(courses.credits) AS total_credits')
+                ->join('enrollments', 'enrollments.id = student_grades.enrollment_id')
+                ->join('courses', 'courses.id = enrollments.course_id')
+                ->where('enrollments.student_id', $studentId)
+                ->groupBy('student_grades.grade_letter')
+                ->get()
+                ->getResultArray();
     }
 }

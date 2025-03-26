@@ -115,4 +115,22 @@ class StudentModel extends Model
         $entryYears = $this->select('entry_year')->distinct()->findAll();
         return array_column($entryYears, 'entry_year');
     }
+
+    public function getFilteredStudents(DataParams $params)
+    {
+        $this->select('students.*, courses.code as course_code, courses.name as course_name, courses.credits as credits, enrollments.academic_year as academic_year, enrollments.status as status')
+            ->join('enrollments', 'enrollments.student_id = students.id')
+            ->join('courses', 'courses.id = enrollments.course_id');
+
+        // Apply search
+        if (!empty($params->search)) {
+            $this->groupStart()
+                ->where("CAST(students.student_id AS TEXT) LIKE", "%{$params->search}%")
+                ->orLike('students.name', $params->search, 'both', null, true)
+            ->groupEnd();
+        }
+
+        return $this->findAll();
+    }
+
 }

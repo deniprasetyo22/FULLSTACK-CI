@@ -41,15 +41,15 @@ Student Dashboard
 
 <script>
 // Data dari controller
-const creditsByGrade = <?= $creditsByGrade ?>;
+const creditDistributionByGrade = <?= $creditDistributionByGrade ?>;
 const creditComparison = <?= $creditComparison ?>;
-const gpaData = <?= $gpaData ?>;
+const gpaProgressPerSemester = <?= $gpaProgressPerSemester ?>;
 
 /* Pie Chart */
 const gradeChart = new Chart(
     document.getElementById('gradeChart'), {
         type: 'pie',
-        data: creditsByGrade,
+        data: creditDistributionByGrade,
         options: {
             responsive: true,
             maintainAspectRatio: false,
@@ -103,7 +103,7 @@ const creditChart = new Chart(
 const gpaChart = new Chart(
     document.getElementById('gpaChart'), {
         type: 'line',
-        data: gpaData,
+        data: gpaProgressPerSemester,
         options: {
             responsive: true,
             maintainAspectRatio: false,

@@ -25,8 +25,7 @@
 
             <?php if(in_groups('admin')) : ?>
             <li>
-                <a href="<?= base_url('admin/report-student-by-program-study') ?>"
-                    class="flex items-center p-2 rounded hover:bg-gray-700">
+                <a href="<?= base_url('admin/report') ?>" class="flex items-center p-2 rounded hover:bg-gray-700">
                     <i class="fa-solid fa-table-columns w-5"></i>
                     <span class="ml-3">Report</span>
                 </a>

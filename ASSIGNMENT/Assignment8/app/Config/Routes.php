@@ -51,9 +51,9 @@ $routes->group('', ['namespace' => 'App\Controllers'], function($routes) {
 // Routes yang hanya bisa diakses admin
 $routes->group('admin', ['filter' => 'role:admin'], function($routes) {
     $routes->get('dashboard', 'Dashboard::adminDashboard');
-    $routes->get('report', 'Dashboard::enrollmentExcel');
-    $routes->get('filter-report', 'Dashboard::adminDashboard');
-    $routes->get('report-student-by-program-study', 'Dashboard::studentsbyprogramForm');
+    $routes->get('report', 'Dashboard::adminReport');
+    $routes->get('export-excel-report', 'Dashboard::enrollmentExcel');
+    $routes->get('filter-report', 'Dashboard::adminReport');
     $routes->post('report-student-by-program-study-pdf', 'Dashboard::studentsbyprogramPdf');
     $routes->get('manage-users', 'Auth::manageUsers');   
     $routes->get('manage-roles', 'Auth::manageRoles');     

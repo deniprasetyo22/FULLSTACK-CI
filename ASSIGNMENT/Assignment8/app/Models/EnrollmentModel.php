@@ -53,4 +53,28 @@ class EnrollmentModel extends Model
             ->join('students', 'students.id = enrollments.student_id')
             ->join('courses', 'courses.id = enrollments.course_id');
     }
+
+    public function getCreditsTaken($studentId)
+    {
+        return $this->select('enrollments.semester, SUM(courses.credits) as credits')
+            ->join('courses', 'courses.id = enrollments.course_id')
+            ->where('enrollments.student_id', $studentId)
+            ->groupBy('enrollments.semester')
+            ->get()
+            ->getResultArray();
+    }
+
+    public function getGpaProgressPerSemester($studentId)
+    {
+        return $this->select('enrollments.semester, ROUND(SUM(student_grades.grade_value * courses.credits) / SUM(courses.credits), 2) as gpa')
+            ->join('student_grades', 'student_grades.enrollment_id = enrollments.id', 'LEFT')
+            ->join('courses', 'courses.id = enrollments.course_id', 'LEFT')
+            ->where('enrollments.student_id', $studentId)
+            ->groupBy('enrollments.semester')
+            ->orderBy('enrollments.semester', 'ASC')
+            ->get()
+            ->getResultArray();
+    }
+
+    
 }
